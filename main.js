@@ -59,22 +59,82 @@ function getData() {
 
 // CUSTOM HEADERS
 function customHeaders() {
-  console.log('Custom Headers');
+  const config = {
+    headers : {
+       'Content-Type' : 'application/json',
+       Authorization : 'sometoken'
+    }
+  };
+
+  axios
+  .post('https://jsonplaceholder.typicode.com/todos' , {
+    title : 'New todo',
+    document: false
+  },
+    config 
+  )
+  .then(res => showOutput(res))
+  .catch(err => console.log(err));
 }
 
 // TRANSFORMING REQUESTS & RESPONSES
 function transformResponse() {
-  console.log('Transform Response');
+  
+  const options = {
+     method : 'post',
+     url : 'https://jsonplaceholder.typicode.com/todos',
+     data : {
+      title : 'Hello World'
+     },
+     transformResponse: axios.defaults.transformResponse.concat(data => {
+      data.title = data.title.toUpperCase();
+      return data;
+     })
+  };
+  axios(options).then(res => showOutput(res));
 }
 
 // ERROR HANDLING
 function errorHandling() {
-  console.log('Error Handling');
+  
+  axios
+  .get('https://jsonplaceholder.typicode.com/todoss')
+  .then(res => showOutput(res))
+  .catch(err => {
+    if(err.response){
+      console.log(err.response.data);
+      console.log(err.response.status);
+      console.log(err.response.headers);
+      
+      if(err.response.status === 404){
+        alert('Error: Page not found');
+      }
+    }else if(err.request){
+        console.log(err.request);
+    }else{
+      console.log(err.message);
+    }
+   
+  });
 }
 
 // CANCEL TOKEN
 function cancelToken() {
-  console.log('Cancel Token');
+  const source = axios.CancelToken.source(); 
+
+  axios
+  .get('https://jsonplaceholder.typicode.com/todos', {
+    CancelToken: source.token 
+  })
+  .then(res => showOutput(res))
+  .catch(thrown => {
+    if(axios.isCancel(thrown)){
+       console.log('request canceled' , thrown.message);
+    }
+  });
+  if(true){
+    source.cancel('request canceled!');
+  }
 }
 
 // INTERCEPTING REQUESTS & RESPONSES
